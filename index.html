@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Funny Paheliyan - 2000 Levels</title>
+    <style>
+        /* --- CSS: Design --- */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #ffDEE9 0%, #B5FFFC 100%);
+            font-family: 'Verdana', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            user-select: none;
+        }
+
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            width: 95%;
+            max-width: 600px;
+            border-radius: 25px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border: 4px solid #fff;
+            position: relative;
+        }
+
+        .level-badge {
+            background: #ff4757;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
+            white-space: nowrap;
+        }
+
+        h1 {
+            color: #2f3542;
+            margin-top: 30px;
+            font-size: 22px;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 20px;
+            font-weight: bold;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 0 #4834d4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Do column */
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: #2d3436;
+            border: 2px solid #dfe6e9;
+            padding: 15px;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .option-btn:hover {
+            background-color: #f1f2f6;
+            transform: translateY(-2px);
+            border-color: #b2bec3;
+        }
+
+        .option-btn.correct {
+            background-color: #2ed573 !important;
+            color: white !important;
+            border-color: #2ed573 !important;
+        }
+
+        .option-btn.wrong {
+            background-color: #ff4757 !important;
+            color: white !important;
+            border-color: #ff4757 !important;
+        }
+
+        #feedback-area {
+            height: 40px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            background-color: #ffa502;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+            box-shadow: 0 5px 0 #e67e22;
+        }
+
+        .next-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 500px) {
+            .options-grid {
+                grid-template-columns: 1fr; /* Mobile pe ek ke neeche ek */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="level-badge">Level <span id="level-display">1</span></div>
+    
+    <h1>😂 Infinite Funny Quiz 😂</h1>
+    
+    <div class="question-box" id="q-text">
+        Loading...
+    </div>
+
+    <div class="options-grid" id="opt-container">
+        </div>
+
+    <div id="feedback-area"></div>
+
+    <button class="next-btn" id="nxt-btn" onclick="nextLevel()">Agla Level 🚀</button>
+</div>
+
+<script>
+    // --- DATA: 50+ Funny Paheliyan ---
+    // Jab ye khatam hongi, code inhe shuffle karke dobara puchega
+    // Isse game Level 2000 tak chal sakta hai.
+    
+    const questionDatabase = [
+        { q: "Woh kya hai jo mardon mein badhti hai lekin auraton mein nahi?", o: ["Daadhi/Moonch", "Gussa", "Akal", "Height"], a: 0 },
+        { q: "Aisi konsi cheez hai jo paani peete hi mar jaati hai?", o: ["Pyaas", "Machli", "Bhook", "Aag"], a: 0 },
+        { q: "Woh kya hai jo aapke sote hi niche gir jaati hai?", o: ["Palkein", "Mobile", "Sapna", "Chadar"], a: 0 },
+        { q: "Log mujhe khate hain lekin mujhe dekh nahi sakte?", o: ["Kasam", "Hawa", "Daant", "Dhoka"], a: 0 },
+        { q: "Woh kya hai jiske paas gardan hai par sir nahi?", o: ["Shirt", "Bhoot", "Bottle", "Giraffe"], a: 0 },
+        { q: "Aisi konsi cheez hai jo phatne par aawaz nahi karti?", o: ["Doodh", "Bum", "Gubbara", "Tyre"], a: 0 },
+        { q: "Woh kya hai jo tumhara hai, lekin log tumse zyada istemal karte hain?", o: ["Tumhara Naam", "Tumhara Paisa", "Tumhara Phone", "Tumhari Bike"], a: 0 },
+        { q: "Ek ladka 100 feet ki unchai se gira, par use chot nahi lagi. Kaise?", o: ["Sapne mein", "Pani mein", "Hawa mein", "Woh chidiya tha"], a: 0 },
+        { q: "Woh konsi cheez hai jo sookhi ho to 2 kilo, geeli ho to 1 kilo aur jal jaye to 3 kilo?", o: ["Sulfur", "Rui (Cotton)", "Lakdi", "Barf"], a: 0 },
+        { q: "Andhere mein baithi hai ek rani, sir pe aag aur badan mein paani?", o: ["Mombatti", "Chai", "Train", "Diya"], a: 0 },
+        { q: "Woh kya hai jo saal mein ek baar aur hafte mein do baar aata hai?", o: ["'E' Akshar", "Tyohar", "Ravivaar", "Salary"], a: 0 }, // Year (1 E), Week (2 E)
+        { q: "Katori pe katora, beta baap se bhi gora?", o: ["Nariyal", "Anda", "Chand", "Mooli"], a: 0 },
+        { q: "Duniya bhar ki karta sair, dharti pe na rakhta pair?", o: ["Suraj", "Hawai Jahaz", "Badal", "Chand"], a: 0 },
+        { q: "Hari thi man bhari thi, lakh moti jare thi. Raja ji ke baagh mein, dushala odhe khadi thi?", o: ["Bhutta (Corn)", "Ghas", "Rani", "Pudina"], a: 0 },
+        { q: "Teen akshar ka mera naam, ulta seedha ek saman?", o: ["Jahaj", "Kamal", "Nayan", "Sadak"], a: 0 },
+        { q: "Na kashi, na kaba, dham, bin jiske ho chakka jam?", o: ["Paisa", "Pani", "Petrol", "Police"], a: 1 },
+        { q: "Woh konsi cheez hai jo dhoop mein nahi sookh sakti?", o: ["Paseena", "Pani", "Kapda", "Nadi"], a: 0 },
+        { q: "Bina dhoye sab khate hain, khakar bahut pachtate hain?", o: ["Jute / Chappal", "Dhoka", "Gali", "Hawa"], a: 0 },
+        { q: "Kali kali maa, lal lal bachhe. Jahan jaye maa, wahan jaye bachhe?", o: ["Train", "Bhalu", "Chonti", "Koyla"], a: 0 },
+        { q: "Ek gufa ke do rakhwale, dono lambe dono kaale?", o: ["Moonch", "Aankhein", "Kaano ke baal", "Haath"], a: 0 },
+        { q: "Upar se gira bum, usme haddi na dum?", o: ["Ola (Hail)", "Barish", "Patthar", "Anda"], a: 0 },
+        { q: "Lal ghoda ruka rahe, kala ghoda bhagta jaye?", o: ["Aag aur Dhua", "Train", "Car", "Suraj"], a: 0 },
+        { q: "Jiske paas hai, wo pakad nahi sakta. Jiske paas nahi hai, wo pakad sakta hai?", o: ["Jhoot", "Gussa", "Mauka", "Pagalpan"], a: 2 }, // Tricky one
+        { q: "Ek per (leg) hai, par chalti nahi. Kali hai, par bhains nahi?", o: ["Chhata (Umbrella)", "Bhootni", "Sadak", "Cycle"], a: 0 },
+        { q: "Woh kya hai jo likhta hai par pen nahi, chalta hai par pair nahi, tick-tick karta hai par ghadi nahi?", o: ["Typewriter", "Computer", "Dil", "Robot"], a: 0 },
+        { q: "Aisi cheez batao jo subah hari, dopahar mein kali, sham ko neeli aur raat ko hari dikhai de?", o: ["Billi ki aankh", "Girgit", "Samundar", "Koi nahi"], a: 0 },
+        { q: "Main marun, main katun, par tum kyu rote ho?", o: ["Pyaaz", "Ungli", "Bakakra", "Mirchi"], a: 0 },
+        { q: "Chhota sa sipahi, uski kheech ke nikali nikkar?", o: ["Kela", "Mombatti", "Bandook", "Pen"], a: 0 },
+        { q: "Sir kaat do to so jaati hoon, Sir jod do to jaag jati hoon?", o: ["Pen (Dhakkan)", "Gudiya", "Mombatti", "Ungli"], a: 0 }, 
+        { q: "Aisi konsi sabzi hai jisme taala aur chabi dono aate hain?", o: ["Lauki (Lock-Key)", "Tamatar", "Bhindi", "Paneer"], a: 0 },
+        { q: "Woh kya hai jo pure kamre ko bhar deta hai, magar jagah bilkul nahi leta?", o: ["Roshni", "Hawa", "Khushbu", "Dhua"], a: 0 },
+        { q: "Aisi konsi jagah hai jahan nadi hai par pani nahi, jungle hai par ped nahi?", o: ["Naksha (Map)", "Registan", "Sapna", "Cinema"], a: 0 },
+        { q: "Jism nahi par jaan hai, bina paron ke udta hai?", o: ["Gubbara", "Patang", "Jahaj", "Bhoot"], a: 0 },
+        { q: "Kaun si cheez hai jo badhti rehti hai par kabhi ghatti nahi?", o: ["Umar (Age)", "Paisa", "Naak", "Baal"], a: 0 },
+        { q: "Beshak na ho haath mein haath, par jeete hai chhaya ke saath?", o: ["Parchhai", "Dost", "Kutta", "Biwi"], a: 0 },
+        { q: "Bimaar nahi rehti main, fir bhi khati hu goli?", o: ["Bandook", "Patient", "Doctor", "Baccha"], a: 0 },
+        { q: "Ek rumaal ke 4 kone hain, 2 kaat diye to kitne bache?", o: ["6 Kone", "2 Kone", "3 Kone", "5 Kone"], a: 0 }, // 4 mein se 2 kate to 2 naye ban gaye = 4-2+4 = 6.
+        { q: "Dhakkan hai par bartan nahi, behta hai par pani nahi?", o: ["Khoon (Blood)", "Nadi", "Ret", "Tel"], a: 0 }, 
+        { q: "Hara hun par patta nahi, nakalchi hun par bandar nahi?", o: ["Tota", "Mendhak", "Girgit", "Alien"], a: 0 },
+        { q: "Chowkidar hai par chota hai, ghar ki rakhwali karta hai?", o: ["Taala", "Kutta", "Camera", "Darwaza"], a: 0 },
+        { q: "Konsa fal (fruit) hai jo meetha hone ke bawajood bikta nahi?", o: ["Sabr ka fal", "Kela", "Aam", "Jamun"], a: 0 },
+        { q: "Main sabko ulta kar deta hoon, par khud hilta nahi?", o: ["Aina (Mirror)", "Pani", "Jaadu", "Camera"], a: 0 },
+        { q: "Woh kya hai jo aapke paas jitna zyada hoga, aapko utna kam dikhai dega?", o: ["Andhera", "Roshni", "Paisa", "Ghamand"], a: 0 },
+        { q: "Eak aadmi baarish mein bheeg raha tha par uska ek baal bhi nahi bheega. Kyu?", o: ["Wo ganja tha", "Helmet pehna tha", "Chhata tha", "Tel lagaya tha"], a: 0 }
+    ];
+
+    // --- GAME LOGIC ---
+
+    let currentLevel = 1;
+    let currentQuestionData = {};
+    
+    const levelDisplay = document.getElementById("level-display");
+    const qText = document.getElementById("q-text");
+    const optContainer = document.getElementById("opt-container");
+    const feedbackArea = document.getElementById("feedback-area");
+    const nxtBtn = document.getElementById("nxt-btn");
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // Is function se hum infinite sawal generate karte hain (list repeat hoti hai)
+    function getQuestionForLevel(level) {
+        // Level 1 se length tak seedha chalega
+        // Uske baad random uthayega
+        
+        let index;
+        if (level <= questionDatabase.length) {
+            index = level - 1; // Sequential
+        } else {
+            // Infinite mode: Random pick karo
+            index = Math.floor(Math.random() * questionDatabase.length);
+        }
+        return questionDatabase[index];
+    }
+
+    function loadLevel() {
+        levelDisplay.innerText = currentLevel;
+        currentQuestionData = getQuestionForLevel(currentLevel);
+        
+        // Options shuffle karte hain taaki answer hamesha pehla na ho
+        let optionsWithIndex = currentQuestionData.o.map((val, idx) => ({ val, isCorrect: idx === currentQuestionData.a }));
+        shuffleArray(optionsWithIndex);
+
+        qText.innerText = currentQuestionData.q;
+        optContainer.innerHTML = "";
+        feedbackArea.innerText = "";
+        feedbackArea.style.color = "black";
+        nxtBtn.style.display = "none";
+
+        optionsWithIndex.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.innerText = opt.val;
+            btn.classList.add("option-btn");
+            btn.onclick = () => checkAnswer(opt.isCorrect, btn);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(isCorrect, btnElement) {
+        // Buttons disable karo
+        const allBtns = document.querySelectorAll(".option-btn");
+        allBtns.forEach(b => b.disabled = true);
+
+        if (isCorrect) {
+            btnElement.classList.add("correct");
+            // Random funny tareef
+            const praises = ["Sahi pakde hain! 😂", "Gazab! 🔥", "Mauj kardi bete!", "Tu scientist banega! 🧪", "Wah Taj! 🏰"];
+            feedbackArea.innerText = praises[Math.floor(Math.random() * praises.length)];
+            feedbackArea.style.color = "#2ed573";
+        } else {
+            btnElement.classList.add("wrong");
+            // Random funny bezzati
+            const insults = ["Abbe yaar... 🤦‍♂️", "Galat hai bhai!", "Kya gunda banega re tu?", "Thoda baadam khao 🥜", "Oops! 🙊", "Jaake kitab padh"];
+            feedbackArea.innerText = insults[Math.floor(Math.random() * insults.length)];
+            feedbackArea.style.color = "#ff4757";
+            
+            // Sahi answer highlight karo
+            // (Thoda logic lagana padega to find correct button based on innerText logic, but simple rakhte hain)
+        }
+        
+        nxtBtn.style.display = "inline-block";
+    }
+
+    function nextLevel() {
+        currentLevel++;
+        loadLevel();
+    }
+
+    // Start Game
+    loadLevel();
+
+</script>
+
+</body>
+</html>
